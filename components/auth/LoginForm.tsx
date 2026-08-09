@@ -98,13 +98,23 @@ export default function LoginForm() {
         <span className="flex-1 h-px bg-line" /> or <span className="flex-1 h-px bg-line" />
       </div>
 
-      <Button
-        variant="ghost"
-        className="w-full text-center block"
-        onClick={() => signIn("google", { callbackUrl: "/account" })}
-      >
-        Continue with Google
-      </Button>
+      <div className="grid gap-3">
+        <Button
+          variant="ghost"
+          className="w-full text-center block"
+          onClick={() => signIn("google", { callbackUrl: "/account" })}
+        >
+          Continue with Google
+        </Button>
+        {process.env.NODE_ENV !== "production" && (
+          <div className="bg-emerald-deep border border-line p-4 text-[13px] text-text-secondary rounded">
+            <div className="font-semibold text-warmwhite mb-2">Dev admin login</div>
+            <div className="text-[12px] leading-5">
+              Use <span className="text-champagne">dev-admin@example.com</span> / <span className="text-champagne">devadmin</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       <p className="text-center text-[13px] text-text-secondary mt-8">
         New to SANAÉRA?{" "}

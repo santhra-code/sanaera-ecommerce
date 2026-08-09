@@ -3,42 +3,42 @@
 import { useState } from "react";
 import { Product, themeGradient } from "@/lib/products";
 
-const THUMB_THEMES: Product["swatchTheme"][] = ["maroon", "emerald", "champagne", "charcoal"];
 const VIEW_MODES = ["Photo", "Fabric Zoom", "Catwalk"] as const;
 
 export default function ProductGallery({ product }: { product: Product }) {
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<(typeof VIEW_MODES)[number]>("Photo");
+  const images = product.images.length ? product.images : [];
+  const activeImage = images[Math.min(active, images.length - 1)] ?? null;
 
   return (
     <div className="flex">
       <div className="hidden sm:flex flex-col gap-0.5 w-[88px] py-6 pl-6">
-        {THUMB_THEMES.map((theme, i) => (
+        {images.map((image, i) => (
           <button
-            key={i}
+            key={image.url + i}
             onClick={() => setActive(i)}
-            className={`aspect-[3/4] transition-opacity ${
+            className={`aspect-[3/4] overflow-hidden transition-opacity ${
               active === i ? "opacity-100 ring-1 ring-inset ring-champagne" : "opacity-55"
             }`}
-            style={{ background: themeGradient[theme] }}
             aria-label={`View ${i + 1}`}
-          />
+          >
+            <img src={image.url} alt={image.alt ?? product.name} className="w-full h-full object-cover" />
+          </button>
         ))}
-        <button
-          onClick={() => setActive(4)}
-          className={`aspect-[3/4] flex items-center justify-center text-warmwhite text-[10px] uppercase tracking-wide transition-opacity ${
-            active === 4 ? "opacity-100 ring-1 ring-inset ring-champagne" : "opacity-55"
-          }`}
-          style={{ background: "linear-gradient(160deg,#6b3a42,#2D0C1C)" }}
-        >
-          360°
-        </button>
       </div>
 
       <div
         className="relative flex-1 aspect-[4/5] m-6 overflow-hidden fabric-texture"
         style={{ background: themeGradient[product.swatchTheme] }}
       >
+        {activeImage && (
+          <img
+            src={activeImage.url}
+            alt={activeImage.alt ?? product.name}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[700ms] group-hover:scale-[1.05]"
+          />
+        )}
         <span className="absolute top-5 left-5 text-sand text-[11px] uppercase tracking-[0.08em] z-[3]">
           Hover to zoom fabric detail
         </span>

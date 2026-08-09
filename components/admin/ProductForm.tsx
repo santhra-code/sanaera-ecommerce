@@ -33,7 +33,7 @@ export default function ProductForm({
     barcode: initial?.barcode ?? "",
     categoryId: initial?.categoryId ?? categories[0]?.id ?? "",
     collectionId: initial?.collectionId ?? "",
-    status: initial?.status ?? "DRAFT",
+    status: initial?.status ?? "PUBLISHED",
     isFeatured: initial?.isFeatured ?? false,
     isNewArrival: initial?.isNewArrival ?? false,
     isTrending: initial?.isTrending ?? false,
@@ -193,6 +193,7 @@ export default function ProductForm({
             <option value="DRAFT" className="bg-emerald-deep">Draft</option>
             <option value="PUBLISHED" className="bg-emerald-deep">Published</option>
           </select>
+          <p className="text-[11px] text-text-secondary mt-1">Products are only visible on the storefront when status is Published.</p>
         </Field>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
           {(

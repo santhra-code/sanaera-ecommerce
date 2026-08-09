@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword } from "@/lib/password";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { loginSchema } from "@/lib/validations/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { ROLE_PERMISSIONS } from "@/lib/rbac";
@@ -37,6 +37,65 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
+
+        const DEV_ADMIN_EMAIL = process.env.DEV_ADMIN_EMAIL ?? "dev-admin@example.com";
+        const DEV_ADMIN_PASSWORD = process.env.DEV_ADMIN_PASSWORD ?? "devadmin";
+        const DEV_ADMIN_BYPASS_ENABLED =
+          process.env.NODE_ENV !== "production" || process.env.DEV_ADMIN_LOGIN === "true";
+
+        if (DEV_ADMIN_BYPASS_ENABLED && email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
+          let role = await prisma.role.findUnique({ where: { name: "SUPER_ADMIN" } });
+          if (!role) {
+            role = await prisma.role.create({
+              data: { name: "SUPER_ADMIN", description: "Development admin role" },
+            });
+          }
+
+          let user = await prisma.user.findUnique({
+            where: { email: DEV_ADMIN_EMAIL },
+            include: { role: true },
+          });
+
+          const hashedPassword = await hashPassword(DEV_ADMIN_PASSWORD);
+          if (!user) {
+            user = await prisma.user.create({
+              data: {
+                firstName: "Dev",
+                lastName: "Admin",
+                email: DEV_ADMIN_EMAIL,
+                passwordHash: hashedPassword,
+                roleId: role.id,
+                isVerified: true,
+                emailVerified: new Date(),
+                isActive: true,
+              },
+              include: { role: true },
+            });
+          } else {
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                passwordHash: user.passwordHash || hashedPassword,
+                roleId: role.id,
+                isVerified: true,
+                emailVerified: user.emailVerified ?? new Date(),
+                isActive: true,
+              },
+              include: { role: true },
+            });
+          }
+
+          await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            image: user.image,
+            role: user.role?.name ?? "SUPER_ADMIN",
+            rememberMe: parsed.data.rememberMe,
+          };
+        }
 
         const { limited } = await checkRateLimit("login", `login:${email}`);
         if (limited) throw new Error("TOO_MANY_ATTEMPTS");

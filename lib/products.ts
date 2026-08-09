@@ -1,3 +1,9 @@
+export type ProductImage = {
+  url: string;
+  alt?: string;
+  position: number;
+};
+
 export type Product = {
   slug: string;
   tag: "New" | "Bestseller" | "Limited" | "Featured";
@@ -6,6 +12,7 @@ export type Product = {
   price: string;
   oldPrice?: string;
   swatchTheme: "emerald" | "maroon" | "charcoal" | "champagne";
+  images: ProductImage[];
 };
 
 export const themeGradient: Record<Product["swatchTheme"], string> = {

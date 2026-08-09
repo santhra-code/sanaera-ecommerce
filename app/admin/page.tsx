@@ -39,7 +39,28 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-warmwhite mb-8">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-display text-3xl text-warmwhite mb-3">Dashboard</h1>
+          <p className="text-sm text-text-secondary max-w-2xl">
+            Use the admin dashboard to manage products, orders, inventory and more.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/products/new"
+            className="text-[12px] uppercase tracking-wide bg-champagne text-matte-black px-4 py-3 hover:bg-maroon hover:text-warmwhite transition-colors"
+          >
+            + Create New Product
+          </Link>
+          <Link
+            href="/admin/products"
+            className="text-[12px] uppercase tracking-wide border border-line text-warmwhite px-4 py-3 hover:bg-emerald hover:text-champagne transition-colors"
+          >
+            Manage Products
+          </Link>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-line mb-10">
         <SalesCard label="Today" data={today} />

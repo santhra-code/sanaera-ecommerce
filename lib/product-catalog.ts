@@ -40,11 +40,20 @@ function getSwatchTheme(category: string, collection?: string) {
 }
 
 type DbProduct = Prisma.ProductGetPayload<{
-  include: { category: true; collection: true };
+  include: { category: true; collection: true; images: true };
 }>;
 
 function toFrontendProduct(product: DbProduct): Product {
   const currentPrice = product.discountPrice ?? product.price;
+  const images = product.images
+    .slice()
+    .sort((a, b) => a.position - b.position)
+    .map((image) => ({
+      url: image.url,
+      alt: image.alt ?? product.title,
+      position: image.position,
+    }));
+
   return {
     slug: product.slug,
     tag: getTag(product),
@@ -53,6 +62,7 @@ function toFrontendProduct(product: DbProduct): Product {
     price: formatMoney(Number(currentPrice)),
     oldPrice: product.discountPrice ? formatMoney(Number(product.price)) : undefined,
     swatchTheme: getSwatchTheme(product.category.name, product.collection?.name),
+    images,
   };
 }
 
@@ -63,7 +73,7 @@ export async function getProducts() {
 
   const products = await prisma.product.findMany({
     where: { status: "PUBLISHED" },
-    include: { category: true, collection: true },
+    include: { category: true, collection: true, images: true },
     orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
   });
   return products.map(toFrontendProduct);
@@ -76,7 +86,7 @@ export async function getProductBySlug(slug: string) {
 
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { category: true, collection: true },
+    include: { category: true, collection: true, images: true },
   });
   if (!product || product.status !== "PUBLISHED") return null;
   return toFrontendProduct(product);

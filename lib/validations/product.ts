@@ -14,6 +14,7 @@ export const productImageSchema = z.object({
   url: z.string().url(),
   publicId: z.string().min(1),
   alt: z.string().max(160).optional().or(z.literal("")),
+  position: z.coerce.number().int().min(0).optional(),
 });
 
 export const productSchema = z.object({
@@ -45,7 +46,16 @@ export const productSchema = z.object({
   variants: z.array(productVariantSchema).min(1, "At least one variant is required"),
 });
 
+export const publicProductSchema = productSchema
+  .omit({ categoryId: true, collectionId: true })
+  .extend({
+    category: z.string().min(1, "Category is required"),
+    collection: z.string().max(120).optional().or(z.literal("")),
+    status: z.enum(["DRAFT", "PUBLISHED"]).default("PUBLISHED"),
+  });
+
 export type ProductInput = z.infer<typeof productSchema>;
+export type PublicProductInput = z.infer<typeof publicProductSchema>;
 export type ProductVariantInput = z.infer<typeof productVariantSchema>;
 export type ProductImageInput = z.infer<typeof productImageSchema>;
 

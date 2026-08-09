@@ -12,6 +12,7 @@ const POSITION_GRADIENTS = [
 
 export default function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const background = POSITION_GRADIENTS[index % 4];
+  const image = product.images[0];
 
   return (
     <Link href={`/product/${product.slug}`} className="group block bg-emerald-deep">
@@ -19,6 +20,14 @@ export default function ProductCard({ product, index = 0 }: { product: Product; 
         className="relative aspect-[3/4] overflow-hidden fabric-texture"
         style={{ background }}
       >
+        {image ? (
+          <img
+            src={image.url}
+            alt={image.alt ?? product.name}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[700ms] group-hover:scale-[1.05]"
+          />
+        ) : null}
+        <div className="absolute inset-0" aria-hidden="true" />
         <svg
           viewBox="0 0 200 200"
           fill="none"
