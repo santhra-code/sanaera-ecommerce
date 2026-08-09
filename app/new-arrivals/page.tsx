@@ -1,10 +1,14 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductGrid from "@/components/ProductGrid";
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/product-catalog";
 
-export default function NewArrivalsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewArrivalsPage() {
+  const products = await getProducts();
   const newItems = products.filter((p) => p.tag === "New");
+
   return (
     <>
       <Header />

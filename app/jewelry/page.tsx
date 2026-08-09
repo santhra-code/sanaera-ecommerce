@@ -1,9 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductGrid from "@/components/ProductGrid";
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/product-catalog";
 
-export default function JewelryPage() {
+export const dynamic = "force-dynamic";
+
+export default async function JewelryPage() {
+  const products = await getProducts();
+
   return (
     <>
       <Header />

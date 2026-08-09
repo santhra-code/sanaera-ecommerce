@@ -10,9 +10,13 @@ import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
 import ScrollIndicator from "@/components/ScrollIndicator";
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/product-catalog";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const products = await getProducts();
+
   return (
     <>
       <Preloader />

@@ -2,9 +2,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductGrid from "@/components/ProductGrid";
 import StateScroller from "@/components/StateScroller";
-import { products } from "@/lib/products";
+import { getProducts } from "@/lib/product-catalog";
 
-export default function CollectionsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function CollectionsPage() {
+  const products = await getProducts();
+
   return (
     <>
       <Header />

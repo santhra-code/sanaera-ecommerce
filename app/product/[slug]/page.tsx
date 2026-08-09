@@ -6,15 +6,13 @@ import ProductInfo from "@/components/ProductInfo";
 import CraftBand from "@/components/CraftBand";
 import CompleteTheLook from "@/components/CompleteTheLook";
 import Reviews from "@/components/Reviews";
-import { getProduct, products } from "@/lib/products";
+import { getProductBySlug } from "@/lib/product-catalog";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return notFound();
 
   return (

@@ -1,0 +1,68 @@
+[
+  {
+    "title": "Handcrafted Silk Blouse",
+    "slug": "handcrafted-silk-blouse",
+    "description": "A beautifully embroidered silk blouse tailored for festive and bridal wear.",
+    "price": 14999,
+    "discountPrice": 12999,
+    "sku": "SNR-BLO-0001",
+    "barcode": "BLO0001",
+    "category": "Blouses",
+    "collection": "Everyday Essentials",
+    "status": "PUBLISHED",
+    "isNewArrival": true,
+    "isFeatured": true,
+    "fabric": "Silk",
+    "craftRegion": "Rajasthan",
+    "images": [
+      {
+        "source": "./public/products/blouse-1.jpeg",
+        "alt": "Silk blouse front detail",
+        "position": 0
+      },
+      {
+        "source": "./public/products/blouse-2.jpeg",
+        "alt": "Silk blouse back embroidery",
+        "position": 1
+      },
+      {
+        "source": "./public/products/blouse-3.jpeg",
+        "alt": "Silk blouse sleeve detail",
+        "position": 2
+      },
+      {
+        "source": "./public/products/blouse-4.jpeg",
+        "alt": "Silk blouse fabric texture",
+        "position": 3
+      },
+      {
+        "source": "./public/products/blouse-5.jpeg",
+        "alt": "Silk blouse styled look",
+        "position": 4
+      }
+    ],
+    "variants": [
+      {
+        "size": "S",
+        "color": "Maroon",
+        "sku": "SNR-BLO-0001-S",
+        "availableStock": 12,
+        "lowStockThreshold": 5
+      },
+      {
+        "size": "M",
+        "color": "Maroon",
+        "sku": "SNR-BLO-0001-M",
+        "availableStock": 10,
+        "lowStockThreshold": 5
+      },
+      {
+        "size": "L",
+        "color": "Maroon",
+        "sku": "SNR-BLO-0001-L",
+        "availableStock": 8,
+        "lowStockThreshold": 5
+      }
+    ]
+  }
+]
