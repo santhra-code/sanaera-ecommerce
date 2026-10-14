@@ -4,7 +4,7 @@ export const metadata = { title: "Access Denied — SANAÉRA" };
 
 export default function ForbiddenPage() {
   return (
-    <div className="min-h-screen bg-ivory flex flex-col items-center justify-center px-6 text-center">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-ivory flex flex-col items-center justify-center px-6 text-center outline-none">
       <span className="font-label text-[11px] tracking-[0.26em] uppercase text-antique-gold mb-5">
         403
       </span>
@@ -19,6 +19,6 @@ export default function ForbiddenPage() {
       >
         Return home
       </Link>
-    </div>
+    </main>
   );
 }

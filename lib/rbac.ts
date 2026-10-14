@@ -61,6 +61,8 @@ export const ADMIN_ROUTE_PERMISSIONS: { prefix: string; permission: PermissionKe
   { prefix: "/admin/payments", permission: "order:read" },
   { prefix: "/admin/shipping", permission: "order:read" },
   { prefix: "/admin/customers", permission: "customer:read" },
+  { prefix: "/admin/contact", permission: "customer:read" },
+  { prefix: "/admin/newsletter", permission: "customer:read" },
   { prefix: "/admin/coupons", permission: "coupon:write" },
   { prefix: "/admin/reviews", permission: "review:moderate" },
   { prefix: "/admin/banners", permission: "banner:write" },

@@ -29,23 +29,36 @@ async function main() {
     }
   }
 
-  console.log("Seeding a Super Admin account (change this password immediately)...");
-  const superAdminRole = await prisma.role.findUniqueOrThrow({ where: { name: "SUPER_ADMIN" } });
-  const customerRole = await prisma.role.findUniqueOrThrow({ where: { name: "CUSTOMER" } });
-
-  await prisma.user.upsert({
-    where: { email: "admin@sanaera.com" },
-    update: {},
-    create: {
-      firstName: "Sanaera",
-      lastName: "Admin",
-      email: "admin@sanaera.com",
-      passwordHash: await bcrypt.hash("ChangeMe!123", 10),
-      roleId: superAdminRole.id,
-      isVerified: true,
-      emailVerified: new Date(),
-    },
-  });
+  const adminEmail = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (Boolean(adminEmail) !== Boolean(adminPassword)) {
+    throw new Error("Set both SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD, or leave both unset.");
+  }
+  if (process.env.NODE_ENV === "production" && !adminEmail) {
+    throw new Error("Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD before seeding production.");
+  }
+  if (adminEmail && adminPassword) {
+    if (adminPassword.length < 16) {
+      throw new Error("SEED_ADMIN_PASSWORD must be at least 16 characters.");
+    }
+    console.log("Seeding the configured Super Admin account...");
+    const superAdminRole = await prisma.role.findUniqueOrThrow({ where: { name: "SUPER_ADMIN" } });
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: {},
+      create: {
+        firstName: "Sanaera",
+        lastName: "Admin",
+        email: adminEmail,
+        passwordHash: await bcrypt.hash(adminPassword, 12),
+        roleId: superAdminRole.id,
+        isVerified: true,
+        emailVerified: new Date(),
+      },
+    });
+  } else {
+    console.log("Skipping Super Admin creation; set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD to provision one.");
+  }
 
   console.log("Seeding categories...");
   const categories = await Promise.all(
@@ -69,6 +82,12 @@ async function main() {
   );
   const colBySlug = Object.fromEntries(collections.map((c) => [c.slug, c]));
 
+  if (process.env.SEED_DEMO_PRODUCTS !== "true") {
+    console.log("Skipping sample products (set SEED_DEMO_PRODUCTS=true only for a disposable development database).");
+    console.log("Seed complete.");
+    return;
+  }
+
   console.log("Seeding products...");
   const products = [
     {
@@ -88,8 +107,8 @@ async function main() {
       slug: "rajwada-bridal-lehenga",
       sku: "SNR-LEH-0001",
       description: "Zardozi-embroidered bridal lehenga crafted by the karigars of Jaipur.",
-      price: 118000,
-      discountPrice: 142000,
+      price: 142000,
+      discountPrice: 118000,
       categorySlug: "lehengas",
       collectionSlug: "bridal",
       fabric: "Silk",

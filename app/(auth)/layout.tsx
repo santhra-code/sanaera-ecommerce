@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       >
         SANAÉRA
       </Link>
-      <div className="w-full max-w-[420px] bg-emerald-deep border border-line p-10">
+      <div id="main-content" tabIndex={-1} className="w-full max-w-[420px] bg-emerald-deep border border-line p-10 outline-none">
         {children}
       </div>
     </div>

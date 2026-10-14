@@ -11,13 +11,26 @@ export const productVariantSchema = z.object({
 });
 
 export const productImageSchema = z.object({
-  url: z.string().url(),
+  url: z
+    .string()
+    .refine((v) => {
+      // Accept absolute URLs or relative paths starting with '/'
+      try {
+        // Accept data URLs and absolute http/https/ftp URLs
+        // new URL throws for relative paths
+        // eslint-disable-next-line no-new
+        new URL(v);
+        return true;
+      } catch {
+        return typeof v === "string" && v.startsWith("/");
+      }
+    }, { message: "Invalid url" }),
   publicId: z.string().min(1),
   alt: z.string().max(160).optional().or(z.literal("")),
   position: z.coerce.number().int().min(0).optional(),
 });
 
-export const productSchema = z.object({
+const productFieldsSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   slug: z
     .string()
@@ -46,13 +59,29 @@ export const productSchema = z.object({
   variants: z.array(productVariantSchema).min(1, "At least one variant is required"),
 });
 
-export const publicProductSchema = productSchema
+function validateCompareAtPrice(
+  product: { price: number; discountPrice?: number | null },
+  context: z.RefinementCtx
+) {
+  if (product.discountPrice != null && product.discountPrice >= product.price) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["discountPrice"],
+      message: "Compare-at price must be higher than the selling price.",
+    });
+  }
+}
+
+export const productSchema = productFieldsSchema.superRefine(validateCompareAtPrice);
+
+export const publicProductSchema = productFieldsSchema
   .omit({ categoryId: true, collectionId: true })
   .extend({
     category: z.string().min(1, "Category is required"),
     collection: z.string().max(120).optional().or(z.literal("")),
     status: z.enum(["DRAFT", "PUBLISHED"]).default("PUBLISHED"),
-  });
+  })
+  .superRefine(validateCompareAtPrice);
 
 export type ProductInput = z.infer<typeof productSchema>;
 export type PublicProductInput = z.infer<typeof publicProductSchema>;

@@ -22,31 +22,33 @@ export default async function Home() {
       <Preloader />
       <ScrollIndicator />
       <Header />
-      <Hero />
-      <Marquee />
-      <ProductGrid
-        title={
-          <>
-            The Featured
-            <br />
-            Collection
-          </>
-        }
-        description="Six silhouettes drawn from six regions — each piece carries the hand of the artisan who made it, and the story of the loom it came from."
-        items={products}
-        columns={4}
-      />
-      <StateScroller />
-      <ArtisanStory />
-      <ProductGrid
-        title="Best Sellers"
-        description="The pieces our house is known for — worn on runways, red carpets, and wedding mandaps alike."
-        items={products.slice(0, 6)}
-        columns={3}
-      />
-      <SustainabilityBand />
-      <Gallery />
-      <Newsletter />
+      <main id="main-content" tabIndex={-1} className="outline-none">
+        <Hero />
+        <Marquee />
+        <ProductGrid
+          title={
+            <>
+              The Featured
+              <br />
+              Collection
+            </>
+          }
+          description="Six silhouettes drawn from six regions — each piece carries the hand of the artisan who made it, and the story of the loom it came from."
+          items={products}
+          columns={4}
+        />
+        <StateScroller />
+        <ArtisanStory />
+        <ProductGrid
+          title="Best Sellers"
+          description="The pieces our house is known for — worn on runways, red carpets, and wedding mandaps alike."
+          items={products.slice(0, 6)}
+          columns={3}
+        />
+        <SustainabilityBand />
+        <Gallery />
+        <Newsletter />
+      </main>
       <Footer />
     </>
   );

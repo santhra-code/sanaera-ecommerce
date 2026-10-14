@@ -4,7 +4,7 @@
 
 A modern full-stack luxury fashion platform inspired by India's textile heritage, craftsmanship, and contemporary editorial design.
 
-Built with **Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma, PostgreSQL, Auth.js, Cloudinary, and Razorpay-ready architecture**, SANAÉRA combines an immersive luxury storefront with a role-based administration system and customer account experience.
+Built with **Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma, PostgreSQL, Auth.js, and Cloudinary**, SANAÉRA combines an editorial storefront with customer accounts and a role-based administration system. Orders are currently assisted through WhatsApp; online Razorpay checkout is not implemented.
 
 ![SANAÉRA Preview](https://placehold.co/1200x650/1A0905/E3DFCE?text=SANA%C3%89RA+Luxury+Fashion+Platform)
 
@@ -29,7 +29,7 @@ The platform is designed around:
 - 📊 Business-oriented admin analytics
 - ☁️ Cloud-based media management
 - 📦 Product & inventory operations
-- 💳 Payment-ready commerce architecture
+- 💬 WhatsApp-assisted ordering; online checkout is pending
 
 ---
 
@@ -104,7 +104,6 @@ The platform separates responsibilities using dedicated roles:
 | Role | Responsibility |
 |---|---|
 | `SUPER_ADMIN` | Full platform access |
-| `ADMIN` | Administrative operations |
 | `PRODUCT_MANAGER` | Products & inventory |
 | `ORDER_MANAGER` | Orders & fulfillment |
 | `CUSTOMER_SUPPORT` | Customer operations |
@@ -225,7 +224,7 @@ Prisma provides type-safe database access while keeping the domain model maintai
 - **Cloudinary** — image/media management
 - **Nodemailer** — transactional email architecture
 - **Vercel Cron** — scheduled jobs
-- **Razorpay** — payment integration architecture
+- **Razorpay** — planned; online checkout and payment webhooks are not implemented
 
 ## Development
 
@@ -282,7 +281,7 @@ SANAÉRA
     ├── Cloudinary
     ├── Nodemailer
     ├── Vercel Cron
-    └── Razorpay-ready architecture
+     └── WhatsApp-assisted orders; Razorpay checkout pending
 ```
 
 ---
@@ -424,14 +423,7 @@ http://localhost:3000
 
 # 🔑 Development Admin
 
-The development seed creates an administrative account:
-
-```text
-Email: admin@sanaera.com
-Password: ChangeMe!123
-```
-
-> ⚠️ **Development credentials only. Change the password immediately when deploying anywhere outside local development.**
+The seed script creates a Super Admin only when you set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`. It does not ship a default administrator password. See [DEPLOYMENT.md](DEPLOYMENT.md) before provisioning an administrator or deploying.
 
 ---
 
@@ -463,9 +455,12 @@ SANAÉRA is being developed incrementally as a production-style commerce platfor
 | Avatar Uploads | ✅ |
 | Low-stock Cron Job | ✅ |
 | Audit Logs | ✅ |
-| Public DB Product Migration | 🚧 |
-| Checkout | 🚧 |
-| Razorpay Payments | 🚧 |
+| Database-backed published product catalog | ✅ |
+| WhatsApp-assisted order requests | ✅ |
+| Online checkout | 🚧 |
+| Razorpay payments and webhooks | 🚧 |
+| Contact form and admin inbox | ✅ |
+| Newsletter persistence and admin list | ✅ |
 | Returns Management | 🚧 |
 | Advanced Reports | 🚧 |
 | Homepage CMS | 🚧 |
@@ -523,7 +518,7 @@ SANAÉRA is being developed incrementally as a production-style commerce platfor
 - [x] Vercel Cron
 
 ### Phase 6 — Commerce
-- [ ] Database-powered storefront
+- [x] Database-powered published catalog
 - [ ] Production cart
 - [ ] Checkout
 - [ ] Razorpay
@@ -597,9 +592,9 @@ The visual system intentionally avoids excessive UI clutter and prioritizes typo
 
 This repository is currently a **development scaffold / portfolio project** and has not been presented as a fully production-deployed commerce business.
 
-The frontend currently uses placeholder CSS gradients and line-art in several locations where campaign photography would eventually be used.
+The public catalog reads published products from PostgreSQL when configured. Development can fall back to sample products; production does not show the sample catalog when the database is unavailable. Replace any demo product content and imagery with approved live inventory before launch.
 
-The public storefront also currently reads product information from a mock product layer while the database-backed product system is being finalized.
+Orders are currently initiated as WhatsApp messages. Online checkout, payment confirmation webhooks, refunds, and order recovery are not implemented; Razorpay credentials alone will not enable them.
 
 This distinction is intentional: the architecture is being developed incrementally rather than hiding unfinished functionality behind misleading claims.
 

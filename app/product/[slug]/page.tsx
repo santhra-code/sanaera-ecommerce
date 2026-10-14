@@ -5,7 +5,6 @@ import ProductGallery from "@/components/ProductGallery";
 import ProductInfo from "@/components/ProductInfo";
 import CraftBand from "@/components/CraftBand";
 import CompleteTheLook from "@/components/CompleteTheLook";
-import Reviews from "@/components/Reviews";
 import { getProductBySlug } from "@/lib/product-catalog";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +17,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Header />
-      <main className="pt-[88px]">
-        <div className="grid lg:grid-cols-[1fr_460px]">
+      <main id="main-content" tabIndex={-1} className="pt-[88px] outline-none">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-8 py-6 grid lg:grid-cols-[1fr_440px] gap-8 items-start">
           <ProductGallery product={product} />
           <ProductInfo product={product} />
         </div>
         <CraftBand />
         <CompleteTheLook />
-        <Reviews />
       </main>
       <Footer />
     </>

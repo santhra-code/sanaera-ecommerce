@@ -10,15 +10,13 @@ const NAV: { href: string; label: string; permission: PermissionKey | null }[] =
   { href: "/admin/categories", label: "Categories", permission: "category:write" },
   { href: "/admin/collections", label: "Collections", permission: "collection:write" },
   { href: "/admin/customers", label: "Customers", permission: "customer:read" },
+  { href: "/admin/contact", label: "Contact Messages", permission: "customer:read" },
+  { href: "/admin/newsletter", label: "Newsletter", permission: "customer:read" },
   { href: "/admin/inventory", label: "Inventory", permission: "inventory:read" },
   { href: "/admin/coupons", label: "Coupons", permission: "coupon:write" },
-  { href: "/admin/banners", label: "Banners", permission: "banner:write" },
-  { href: "/admin/homepage", label: "Homepage Editor", permission: "homepage:write" },
   { href: "/admin/reviews", label: "Reviews", permission: "review:moderate" },
-  { href: "/admin/returns", label: "Returns", permission: "order:refund" },
   { href: "/admin/payments", label: "Payments", permission: "order:read" },
   { href: "/admin/shipping", label: "Shipping", permission: "order:read" },
-  { href: "/admin/reports", label: "Reports", permission: "analytics:read" },
   { href: "/admin/admins", label: "Admins & Roles", permission: "admin:manage_roles" },
   { href: "/admin/audit-logs", label: "Audit Logs", permission: "admin:view_audit_log" },
 ];
@@ -56,7 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <SignOutButton />
           </div>
         </aside>
-        <main className="px-8 py-10 md:px-12 md:py-12">{children}</main>
+        <main id="main-content" tabIndex={-1} className="px-8 py-10 outline-none md:px-12 md:py-12">{children}</main>
       </div>
     </div>
   );

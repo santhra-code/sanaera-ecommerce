@@ -24,6 +24,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { useModalFocus } from "@/components/useModalFocus";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -31,9 +32,6 @@ import { AnimatePresence, motion, type Variants } from "framer-motion";
 
 /** sessionStorage key — flips to "true" once the intro has played this tab session. */
 const SESSION_KEY = "introPlayed";
-
-/** Path to your transparent parchment scroll PNG (drop it in /public). */
-const SCROLL_IMAGE_SRC = "/scroll.png";
 
 /** Timing (ms) — mirrors the Framer Motion durations below, used only for
  *  scheduling the "hold" -> "closing" -> "done" state transitions. */
@@ -189,6 +187,11 @@ export default function IntroAnimation({
   // ---- Step 0: decide, synchronously on mount, whether to play at all. ----
   useEffect(() => {
     try {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) {
+        setShouldPlay(false);
+        return;
+      }
       const alreadyPlayed = sessionStorage.getItem(SESSION_KEY) === "true";
       setShouldPlay(!alreadyPlayed);
     } catch {
@@ -196,6 +199,13 @@ export default function IntroAnimation({
       setShouldPlay(false);
     }
   }, []);
+
+  const skipIntro = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setPhase("done");
+    onComplete?.();
+  };
 
   // ---- Drive the phase machine once we know we should play. ----
   useEffect(() => {
@@ -208,9 +218,12 @@ export default function IntroAnimation({
       /* no-op — non-critical if storage write fails */
     }
 
-    // Lock background scroll while the intro is active.
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        skipIntro();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
 
     const schedule = (fn: () => void, delay: number) => {
       const id = setTimeout(fn, delay);
@@ -231,11 +244,10 @@ export default function IntroAnimation({
       () => setPhase("revealing"),
       700 + TIMINGS.openDuration + TIMINGS.holdDuration + TIMINGS.closeDuration
     );
-    // revealing -> done (unmount + restore scroll + notify parent)
+    // revealing -> done (unmount and notify parent)
     schedule(
       () => {
         setPhase("done");
-        document.body.style.overflow = originalOverflow;
         onComplete?.();
       },
       700 +
@@ -246,9 +258,9 @@ export default function IntroAnimation({
     );
 
     return () => {
+      window.removeEventListener("keydown", onKeyDown);
       timers.current.forEach(clearTimeout);
       timers.current = [];
-      document.body.style.overflow = originalOverflow;
     };
   }, [shouldPlay, onComplete]);
 
@@ -261,7 +273,7 @@ export default function IntroAnimation({
   return (
     <AnimatePresence>
       {phase !== "revealing" ? (
-        <Overlay key="intro-overlay">
+        <Overlay key="intro-overlay" onSkip={skipIntro}>
           <ScrollGraphic
             scrollState={scrollState}
             brandName={brandName}
@@ -286,12 +298,19 @@ export default function IntroAnimation({
 function Overlay({
   children,
   exiting = false,
+  onSkip,
 }: {
   children?: React.ReactNode;
   exiting?: boolean;
+  onSkip?: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalFocus(dialogRef, !exiting);
+
   return (
     <motion.div
+      ref={dialogRef}
+      tabIndex={-1}
       variants={overlayVariants}
       initial="hidden"
       animate={exiting ? "exit" : "visible"}
@@ -299,8 +318,18 @@ function Overlay({
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#2B0816] px-6"
       aria-hidden={exiting}
       role="dialog"
+      aria-modal="true"
       aria-label="Welcome introduction"
     >
+      {onSkip && !exiting && (
+        <button
+          onClick={onSkip}
+          className="absolute top-6 right-6 z-50 text-[11px] font-label uppercase tracking-[0.2em] text-[#DEB092] hover:text-warmwhite py-2 px-4 border border-[#DEB092]/40 hover:border-[#DEB092] transition-colors focus-visible:ring-2 focus-visible:ring-champagne focus-visible:outline-none bg-[#2B0816]/70 backdrop-blur-sm cursor-pointer"
+          aria-label="Skip introductory animation"
+        >
+          Enter House →
+        </button>
+      )}
       {children}
     </motion.div>
   );
@@ -344,26 +373,17 @@ function ScrollGraphic({
           }}
         />
 
-        {/* Parchment paper — the user's PNG asset, stretched vertically */}
+        {/* Parchment paper is CSS-rendered so the intro has no missing asset dependency. */}
         <div className="relative z-10 w-[85%] max-w-xs overflow-hidden" style={{ minHeight: "1px" }}>
           <motion.div
             variants={paperVariants}
             animate={scrollState}
-            style={{ transformOrigin: "top center" }}
-            className="relative flex flex-col items-center justify-center px-6 py-14 shadow-2xl"
+            style={{
+              transformOrigin: "top center",
+              background: "linear-gradient(135deg, #f4e8c5 0%, #e6d2a0 48%, #d2b779 100%)",
+            }}
+            className="relative flex flex-col items-center justify-center border-x border-[#9c7a3c]/60 px-6 py-14 shadow-2xl"
           >
-            {/* Background parchment image.
-                Swap the src on SCROLL_IMAGE_SRC (top of file) for your asset.
-                object-fit: fill lets it stretch to sell the "unroll" effect. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={SCROLL_IMAGE_SRC}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-fill"
-              draggable={false}
-            />
-
             {/* Soft gold inner glow on the paper, per the brief */}
             <div
               className="pointer-events-none absolute inset-0"

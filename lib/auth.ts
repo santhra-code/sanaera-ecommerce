@@ -40,8 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const DEV_ADMIN_EMAIL = process.env.DEV_ADMIN_EMAIL ?? "dev-admin@example.com";
         const DEV_ADMIN_PASSWORD = process.env.DEV_ADMIN_PASSWORD ?? "devadmin";
-        const DEV_ADMIN_BYPASS_ENABLED =
-          process.env.NODE_ENV !== "production" || process.env.DEV_ADMIN_LOGIN === "true";
+        const DEV_ADMIN_BYPASS_ENABLED = process.env.NODE_ENV !== "production";
 
         if (DEV_ADMIN_BYPASS_ENABLED && email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
           let role = await prisma.role.findUnique({ where: { name: "SUPER_ADMIN" } });

@@ -66,30 +66,144 @@ function toFrontendProduct(product: DbProduct): Product {
   };
 }
 
-export async function getProducts() {
+export const FALLBACK_PRODUCTS: Product[] = [
+  {
+    slug: "meenakari-zari-saree",
+    tag: "New",
+    category: "Sarees",
+    name: "Meenakari Zari Saree",
+    price: "₹42,500",
+    swatchTheme: "emerald",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=900&q=80",
+        alt: "Meenakari Zari Saree in rich jewel tones with silver-gilt weaving",
+        position: 0,
+      },
+    ],
+  },
+  {
+    slug: "rajwada-bridal-lehenga",
+    tag: "Bestseller",
+    category: "Lehengas",
+    name: "Rajwada Bridal Lehenga",
+    price: "₹1,18,000",
+    oldPrice: "₹1,42,000",
+    swatchTheme: "maroon",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=900&q=80",
+        alt: "Rajwada Bridal Lehenga with handcrafted zardozi embroidery",
+        position: 0,
+      },
+    ],
+  },
+  {
+    slug: "lucknowi-anarkali-suit",
+    tag: "Limited",
+    category: "Suits",
+    name: "Lucknowi Anarkali Suit",
+    price: "₹28,900",
+    swatchTheme: "champagne",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1596783074918-c84cb06531ca?auto=format&fit=crop&w=900&q=80",
+        alt: "Pure cotton chikankari anarkali suit hand-sewn in Awadh",
+        position: 0,
+      },
+    ],
+  },
+  {
+    slug: "varanasi-brocade-saree",
+    tag: "Featured",
+    category: "Sarees",
+    name: "Varanasi Brocade Silk Saree",
+    price: "₹54,000",
+    swatchTheme: "maroon",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=900&q=80",
+        alt: "Heirloom Banarasi brocade silk saree with floral kadhwa borders",
+        position: 0,
+      },
+    ],
+  },
+  {
+    slug: "chandrika-polki-choker",
+    tag: "New",
+    category: "Jewelry",
+    name: "Chandrika Polki Choker",
+    price: "₹34,500",
+    swatchTheme: "champagne",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
+        alt: "Uncut polki necklace with fresh-water pearls and meenakari reverse",
+        position: 0,
+      },
+    ],
+  },
+  {
+    slug: "kashmir-pashmina-shawl",
+    tag: "Limited",
+    category: "Heritage",
+    name: "Kashmiri Sozni Pashmina Shawl",
+    price: "₹38,000",
+    oldPrice: "₹45,000",
+    swatchTheme: "charcoal",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?auto=format&fit=crop&w=900&q=80",
+        alt: "Hand-spun pure cashmere shawl with needlework sozni embroidery",
+        position: 0,
+      },
+    ],
+  },
+];
+
+export async function getProducts(): Promise<Product[]> {
   if (!hasDatabaseUrl()) {
-    return [];
+    return process.env.NODE_ENV === "production" ? [] : FALLBACK_PRODUCTS;
   }
 
-  const products = await prisma.product.findMany({
-    where: { status: "PUBLISHED" },
-    include: { category: true, collection: true, images: true },
-    orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
-  });
-  return products.map(toFrontendProduct);
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: "PUBLISHED" },
+      include: { category: true, collection: true, images: true },
+      orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+    });
+    if (!products.length) return process.env.NODE_ENV === "production" ? [] : FALLBACK_PRODUCTS;
+    return products.map(toFrontendProduct);
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    if (process.env.NODE_ENV === "production") throw error;
+    return FALLBACK_PRODUCTS;
+  }
 }
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!hasDatabaseUrl()) {
-    return null;
+    return process.env.NODE_ENV === "production"
+      ? null
+      : FALLBACK_PRODUCTS.find((p) => p.slug === slug) ?? null;
   }
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: { category: true, collection: true, images: true },
-  });
-  if (!product || product.status !== "PUBLISHED") return null;
-  return toFrontendProduct(product);
+  try {
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      include: { category: true, collection: true, images: true },
+    });
+    if (!product || product.status !== "PUBLISHED") {
+      return process.env.NODE_ENV === "production"
+        ? null
+        : FALLBACK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+    }
+    return toFrontendProduct(product);
+  } catch (error) {
+    console.error("Failed to fetch product:", error);
+    if (process.env.NODE_ENV === "production") throw error;
+    return FALLBACK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+  }
 }
 
 export function getThemeGradient(theme: Product["swatchTheme"]) {

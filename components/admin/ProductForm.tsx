@@ -97,16 +97,21 @@ export default function ProductForm({
     }
 
     setLoading(true);
-    const result = productId
-      ? await updateProductAction(productId, parsed.data)
-      : await createProductAction(parsed.data);
-    setLoading(false);
+    try {
+      const result = productId
+        ? await updateProductAction(productId, parsed.data)
+        : await createProductAction(parsed.data);
+      setLoading(false);
 
-    if (!result.success) {
-      setError(result.error);
-      return;
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+      router.push("/admin/products");
+    } catch (err: any) {
+      setLoading(false);
+      setError(err?.message || "An unexpected error occurred while saving.");
     }
-    router.push("/admin/products");
   }
 
   return (
@@ -177,7 +182,7 @@ export default function ProductForm({
           <Field label="Price (₹)">
             <input type="number" min={0} step="0.01" className={inputClass} value={form.price} onChange={(e) => set("price", Number(e.target.value))} required />
           </Field>
-          <Field label="Compare-at / Discount Price (optional)">
+          <Field label="Compare-at Price (optional)">
             <input
               type="number" min={0} step="0.01" className={inputClass}
               value={form.discountPrice ?? ""}

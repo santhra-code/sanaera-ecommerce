@@ -16,6 +16,9 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/account")) {
+    if (pathname === "/account/cart" || pathname === "/account/wishlist") {
+      return;
+    }
     if (!isLoggedIn) {
       const loginUrl = new URL("/login", req.nextUrl.origin);
       loginUrl.searchParams.set("callbackUrl", pathname);

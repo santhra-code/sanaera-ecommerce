@@ -9,8 +9,14 @@ import { sendLowStockAlertEmail } from "@/lib/email";
  * calling this URL without it gets a 401.
  */
 export async function GET(req: NextRequest) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    console.error("CRON_SECRET is not configured; refusing to run low-stock cron.");
+    return NextResponse.json({ error: "Cron is not configured" }, { status: 503 });
+  }
+
   const authHeader = req.headers.get("authorization");
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

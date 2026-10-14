@@ -1,10 +1,8 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// Falls back to "allow everything" when Upstash env vars aren't set, so the
-// app still runs locally without a Redis instance — but this means rate
-// limiting is NOT actually active until UPSTASH_REDIS_REST_URL/TOKEN are set.
-// Don't ship to production without configuring these.
+// Local development can run without Redis. In production, fail closed when
+// rate limiting is not configured rather than silently allowing brute force.
 const hasUpstash = Boolean(
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
 );
@@ -26,6 +24,8 @@ const limiters = {
   otpRequest: makeLimiter(3, 300), // 3 codes / 5 min / key
   passwordReset: makeLimiter(3, 300),
   checkout: makeLimiter(10, 60),
+  newsletter: makeLimiter(5, 3600),
+  contact: makeLimiter(5, 3600),
 };
 
 export type RateLimitKind = keyof typeof limiters;
@@ -38,7 +38,18 @@ export type RateLimitKind = keyof typeof limiters;
  */
 export async function checkRateLimit(kind: RateLimitKind, identifier: string) {
   const limiter = limiters[kind];
-  if (!limiter) return { success: true, limited: false }; // Upstash not configured
-  const result = await limiter.limit(identifier);
-  return { success: result.success, limited: !result.success, remaining: result.remaining };
+  if (!limiter) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("Upstash rate limiting is not configured in production.");
+      return { success: false, limited: true, remaining: 0 };
+    }
+    return { success: true, limited: false };
+  }
+  try {
+    const result = await limiter.limit(identifier);
+    return { success: result.success, limited: !result.success, remaining: result.remaining };
+  } catch (error) {
+    console.error("Upstash rate-limit request failed; rejecting the request.", error);
+    return { success: false, limited: true, remaining: 0 };
+  }
 }

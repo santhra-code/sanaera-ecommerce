@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Reveal from "./Reveal";
 
 const STATES: { name: string; craft: string }[] = [
@@ -21,33 +22,42 @@ const CARD_GRADIENTS = [
 
 export default function StateScroller() {
   return (
-    <section className="px-12 pb-32 pt-0 max-md:px-6 max-md:pb-20 max-md:pt-0">
+    <section className="px-12 pb-32 pt-0 max-md:px-6 max-md:pb-20 max-md:pt-0" aria-label="Shop by State of India">
       <Reveal className="flex justify-between items-end gap-10 flex-wrap mb-16">
         <h2 className="font-display font-normal text-[clamp(32px,4vw,56px)] leading-tight">
           Shop by
           <br />
           State of India
         </h2>
-        <p className="max-w-[340px] text-sm leading-relaxed text-charcoal/60">
+        <p className="max-w-[340px] text-sm leading-relaxed text-charcoal/70">
           Twenty-eight states, a thousand traditions. Begin your journey through India&apos;s
           textile geography.
         </p>
       </Reveal>
       <Reveal>
-        <div className="flex gap-0.5 overflow-x-auto pb-3 bg-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          role="region"
+          aria-label="Indian textile regions"
+          tabIndex={0}
+          className="flex gap-0.5 overflow-x-auto pb-3 bg-line [scrollbar-width:thin] focus-visible:ring-1 focus-visible:ring-champagne"
+        >
           {STATES.map((s, i) => (
-            <div
+            <Link
               key={s.name}
-              className="min-w-[280px] aspect-[4/5] relative flex-shrink-0 overflow-hidden flex items-end p-6"
+              href={`/collections?state=${encodeURIComponent(s.name.toLowerCase())}`}
+              aria-label={`Explore ${s.name} ${s.craft} collection`}
+              className="group min-w-[280px] aspect-[4/5] relative flex-shrink-0 overflow-hidden flex items-end p-6 transition-transform duration-300 hover:scale-[1.01] focus-visible:ring-2 focus-visible:ring-champagne focus-visible:outline-none"
               style={{ background: CARD_GRADIENTS[i] }}
             >
               <div className="relative z-[2]">
-                <span className="font-label tracking-[0.28em] uppercase text-[11px] text-sand block mb-2">
+                <span className="font-label tracking-[0.28em] uppercase text-[11px] text-sand block mb-2 group-hover:text-champagne transition-colors">
                   {s.craft}
                 </span>
-                <h3 className="font-display italic text-[26px] text-warmwhite">{s.name}</h3>
+                <h3 className="font-display italic text-[26px] text-warmwhite group-hover:translate-x-1 transition-transform">
+                  {s.name} →
+                </h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </Reveal>

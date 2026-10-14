@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/check-deploy-env.ts",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --test tests/security.test.ts",
+    "check:deploy": "tsx scripts/check-deploy-env.ts --strict",
     "lint": "next lint",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
